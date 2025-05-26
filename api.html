@@ -1,15 +1,182 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Consulta de CEP e Tempo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f0f4f8;
+    }
+    h2 {
+      color: #333;
+    }
+    form {
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    label, input, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    input, button {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #2d89e5;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1a6fc2;
+    }
+    .resultado {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Consumo de API Pública</h1>
-  <button id="buscar">Buscar Dados</button>
-  <div id="resultado"></div>
-  <script src="js/api.js" defer></script>
+
+  <h2>🔍 Consulta de Endereço via CEP</h2>
+  <form id="cepForm">
+    <label for="cep">Digite o CEP:</label>
+    <input type="text" id="cep" name="cep" placeholder="Ex: 01001-000" required />
+    <button type="submit">Buscar CEP</button>
+  </form>
+  <div class="resultado" id="resultadoCEP"></div>
+
+  <h2>🌤️ Previsão do Tempo</h2>
+  <form id="tempoForm">
+    <label for="cidade">Digite a cidade:</label>
+    <input type="text" id="cidade" name="cidade" placeholder="Ex: São Paulo" required />
+    <button type="submit">Ver Previsão</button>
+  </form>
+  <div class="resultado" id="resultadoTempo"></div>
+  <button id="btnSair">Sair</button>
+
+  <script>
+    // Consulta de endereço via CEP (ViaCEP)
+    document.getElementById("cepForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const cep = document.getElementById("cep").value.replace(/\D/g, "");
+
+      if (cep.length !== 8) {
+        alert("CEP inválido.");
+        return;
+      }
+
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.erro) {
+            document.getElementById("resultadoCEP").innerHTML = "<p>CEP não encontrado.</p>";
+          } else {
+            document.getElementById("resultadoCEP").innerHTML = `
+              <p><strong>Logradouro:</strong> ${data.logradouro}</p>
+              <p><strong>Bairro:</strong> ${data.bairro}</p>
+              <p><strong>Cidade:</strong> ${data.localidade}</p>
+              <p><strong>Estado:</strong> ${data.uf}</p>
+            `;
+          }
+        })
+        .catch(() => {
+          document.getElementById("resultadoCEP").innerHTML = "<p>Erro ao buscar o CEP.</p>";
+        });
+    });
+
+    // Consulta da previsão do tempo via cidade (Open-Meteo)
+    document.getElementById("tempoForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const cidade = document.getElementById("cidade").value.trim();
+
+      if (!cidade) {
+        alert("Por favor, digite o nome de uma cidade.");
+        return;
+      }
+
+      // Passo 1: Buscar coordenadas geográficas da cidade
+      fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${cidade}&count=1&language=pt&format=json`)
+        .then(res => res.json())
+        .then(geoData => {
+          if (!geoData.results || geoData.results.length === 0) {
+            document.getElementById("resultadoTempo").innerHTML = "<p>Cidade não encontrada.</p>";
+            return;
+          }
+
+          const { latitude, longitude, name, country } = geoData.results[0];
+
+          // Passo 2: Buscar previsão do tempo com base nas coordenadas
+          fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`)
+            .then(res => res.json())
+            .then(weatherData => {
+              if (!weatherData || !weatherData.current_weather) {
+                document.getElementById("resultadoTempo").innerHTML = "<p>Não foi possível obter a previsão do tempo.</p>";
+                return;
+              }
+
+              const weather = weatherData.current_weather;
+
+              document.getElementById("resultadoTempo").innerHTML = `
+                <p><strong>Cidade:</strong> ${name}, ${country}</p>
+                <p><strong>Temperatura:</strong> ${weather.temperature} °C</p>
+                <p><strong>Vento:</strong> ${weather.windspeed} km/h</p>
+                <p><strong>Clima:</strong> ${getWeatherDescription(weather.weathercode)}</p>
+              `;
+            });
+        })
+        .catch(() => {
+          document.getElementById("resultadoTempo").innerHTML = "<p>Erro ao buscar a previsão do tempo.</p>";
+        });
+    });
+
+    // Função auxiliar para traduzir códigos de clima da Open-Meteo
+    function getWeatherDescription(code) {
+      const descriptions = {
+        0: "Céu limpo",
+        1: "Parcialmente nublado",
+        2: "Nublado",
+        3: "Encoberto",
+        45: "Nevoeiro",
+        48: "Nevoeiro com gelo",
+        51: "Chuvisco fraco",
+        53: "Chuvisco moderado",
+        55: "Chuvisco intenso",
+        61: "Chuva fraca",
+        63: "Chuva moderada",
+        65: "Chuva intensa",
+        71: "Neve fraca",
+        73: "Neve moderada",
+        75: "Neve forte",
+        95: "Trovoadas",
+        96: "Trovoadas com granizo",
+        99: "Trovoadas fortes com granizo"
+      };
+    }  
+  const btnSair = document.getElementById("btnSair");
+
+  btnSair.addEventListener("click", function () {
+    localStorage.removeItem("usuarioLogado"); // Remove o usuário logado
+    window.location.href = "index.html";
+  });
+
+  const btnLogin = document.getElementById("btnLogin");
+
+  btnLogin.addEventListener("click", function () {
+    window.location.href = "index.html"; 
+  });
+</script>
 </body>
 </html>
