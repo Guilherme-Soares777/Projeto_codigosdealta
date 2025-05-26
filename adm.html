@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Área do Administrador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+  <h1>Bem-vindo, Administrador!</h1>
+  <p>Você será redirecionado para a página de Listagem...</p>
+
+  <script>
+    const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+    if (!usuarioLogado || usuarioLogado.perfil !== "Administrador") {
+      alert("Acesso negado. Apenas administradores.");
+      window.location.href = "login.html";
+    } else {
+      // Redireciona após 2 segundos
+      setTimeout(() => {
+        window.location.href = "listagem.html";
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
