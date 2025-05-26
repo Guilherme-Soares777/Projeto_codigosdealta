@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Esqueci a Senha</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #f0f4f8;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    input[type="password"] { /* Alterado para input[type="password"] */
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .mensagem {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    .link-voltar {
+      margin-top: 20px;
+      display: block;
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .link-voltar:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Modificar Senha</h2>
+    <form id="formSenha">
+      <input type="password" id="novaSenha" placeholder="Nova Senha" required />
+      <input type="password" id="confirmarSenha" placeholder="Confirmar Nova Senha" required />
+      <button type="submit">Salvar Nova Senha</button>
+    </form>
+    <p class="mensagem" id="mensagem"></p>
+    <a href="index.html" class="link-voltar">🔙 Voltar para o login</a>
+  </div>
+
+  <script>
+    const formSenha = document.getElementById("formSenha");
+    const mensagem = document.getElementById("mensagem");
+
+    formSenha.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const novaSenha = document.getElementById("novaSenha").value;
+      const confirmarSenha = document.getElementById("confirmarSenha").value;
+
+      // Obter o usuário logado (exemplo - em um cenário real, isso viria do seu backend)
+      // Para este exemplo, vamos simular um usuário logado com uma senha "123"
+      const usuarioLogado = { email: "teste@example.com", senha: "123" }; 
+
+      if (novaSenha !== confirmarSenha) {
+        mensagem.textContent = "A nova senha e a confirmação não coincidem.";
+        mensagem.style.color = "#dc3545";
+        return;
+      }
+
+      // Em um cenário real, você enviaria a nova senha para o servidor para atualização
+      // Aqui, apenas simulamos o sucesso
+      usuarioLogado.senha = novaSenha; // Apenas para o exemplo, não persistiria
+      mensagem.textContent = "Senha modificada com sucesso!";
+      mensagem.style.color = "#28a745";
+
+      // Opcional: Redirecionar após a modificação bem-sucedida
+      // setTimeout(() => {
+      //   window.location.href = "index.html"; 
+      // }, 2000
+    });
+  </script>
+</body>
+</html>
