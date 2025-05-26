@@ -1,48 +1,47 @@
-const tabela = document.querySelector("#tabelaUsuarios tbody");
-const campoBusca = document.getElementById("busca");
+let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+const tabela = document.getElementById("tabelaUsuarios");
+const filtro = document.getElementById("filtroNome");
 
-function carregarUsuarios(filtro = "") {
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+function renderTabela(filtroTexto = "") {
   tabela.innerHTML = "";
 
-  usuarios.forEach((user, index) => {
-    if (user.nome.toLowerCase().includes(filtro.toLowerCase())) {
+  usuarios
+    .filter(user => user.nome.toLowerCase().includes(filtroTexto.toLowerCase()))
+    .forEach((user, index) => {
       const tr = document.createElement("tr");
-
       tr.innerHTML = `
-        <td>${user.nome}</td>
+        <td><input value="${user.nome}" data-index="${index}" data-campo="nome" /></td>
         <td>${user.email}</td>
-        <td>${user.cpf}</td>
-        <td>${user.nascimento}</td>
+        <td><input value="${user.cpf || ""}" data-index="${index}" data-campo="cpf" /></td>
+        <td><input type="date" value="${user.nascimento || ""}" data-index="${index}" data-campo="nascimento" /></td>
         <td>
-          <button onclick="editarUsuario(${index})">Editar</button>
-          <button onclick="excluirUsuario(${index})">Excluir</button>
+          <button onclick="salvar(${index})">Salvar</button>
+          <button onclick="excluir(${index})">Excluir</button>
         </td>
       `;
-
       tabela.appendChild(tr);
-    }
-  });
+    });
 }
 
-campoBusca.addEventListener("input", () => {
-  carregarUsuarios(campoBusca.value);
-});
+function salvar(index) {
+  const inputs = document.querySelectorAll(`[data-index="${index}"]`);
+  inputs.forEach(input => {
+    const campo = input.dataset.campo;
+    usuarios[index][campo] = input.value;
+  });
 
-function excluirUsuario(index) {
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-  if (confirm("Tem certeza que deseja excluir este usuário?")) {
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+  alert("Usuário atualizado.");
+  renderTabela(filtro.value);
+}
+
+function excluir(index) {
+  if (confirm("Deseja realmente excluir este usuário?")) {
     usuarios.splice(index, 1);
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    carregarUsuarios(campoBusca.value);
+    renderTabela(filtro.value);
   }
 }
 
-function editarUsuario(index) {
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-  localStorage.setItem("usuarioEditando", index);
-  window.location.href = "perfil.html";
-}
-
-// Carrega ao iniciar
-carregarUsuarios();
+filtro.addEventListener("input", () => renderTabela(filtro.value));
+renderTabela();
