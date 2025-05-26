@@ -1,26 +1,238 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Listagem</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <title>Listagem de Usuários</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f0f4f8;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+
+    #filtroNome {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: border 0.3s;
+    }
+
+    #filtroNome:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 10px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background-color: #f9fafb;
+      color: #555;
+      font-weight: 600;
+    }
+
+    input[type="text"], input[type="date"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    input:disabled {
+      background-color: #f2f2f2;
+    }
+
+    button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+      transition: background-color 0.3s ease;
+      margin: 0 2px;
+    }
+
+    .btn-salvar {
+      background-color: #28a745;
+    }
+
+    .btn-salvar:hover {
+      background-color: #218838;
+    }
+
+    .btn-excluir {
+      background-color: #dc3545;
+    }
+
+    .btn-excluir:hover {
+      background-color: #c82333;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        background-color: #f9f9f9;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      }
+
+      td {
+        padding: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+      }
+
+      td:last-child {
+        border: none;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #333;
+        margin-right: 10px;
+      }
+
+      input, button {
+        width: 100%;
+        margin-top: 5px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Usuários Cadastrados</h1>
-  <input type="text" id="busca" placeholder="Buscar por nome">
-  <table id="tabelaUsuarios">
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Email</th>
-        <th>CPF</th>
-        <th>Nascimento</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <script src="js/listagem.js" defer></script>
+  <div class="container">
+    <h1>Listagem de Usuários</h1>
+
+    <button id="btnSair" style="float: right; background-color: #007bff;">Sair</button>
+
+    <input type="text" id="filtroNome" placeholder="Filtrar por nome..." aria-label="Filtrar por nome" />
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>CPF</th>
+          <th>Nascimento</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaUsuarios"></tbody>
+    </table>
+  </div>
+
+  <script>
+
+    const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+if (!usuarioLogado) {
+  window.location.href = "login.html";
+}
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const tabela = document.getElementById("tabelaUsuarios");
+    const filtro = document.getElementById("filtroNome");
+
+    function renderTabela(filtroTexto = "") {
+      tabela.innerHTML = "";
+
+      usuarios
+        .filter(user => user.nome.toLowerCase().includes(filtroTexto.toLowerCase()))
+        .forEach((user, index) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td data-label="Nome"><input value="${user.nome}" data-index="${index}" data-campo="nome" /></td>
+            <td data-label="Email">${user.email}</td>
+            <td data-label="CPF"><input value="${user.cpf || ""}" data-index="${index}" data-campo="cpf" /></td>
+            <td data-label="Nascimento"><input type="date" value="${user.nascimento || ""}" data-index="${index}" data-campo="nascimento" /></td>
+            <td data-label="Ações">
+              <button class="btn-salvar" onclick="salvar(${index})" aria-label="Salvar"><i class="fas fa-save"></i></button>
+              <button class="btn-excluir" onclick="excluir(${index})" aria-label="Excluir"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          `;
+          tabela.appendChild(tr);
+        });
+    }
+
+    function salvar(index) {
+      const inputs = document.querySelectorAll(`[data-index="${index}"]`);
+      inputs.forEach(input => {
+        const campo = input.dataset.campo;
+        usuarios[index][campo] = input.value;
+      });
+
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+      alert("Usuário atualizado.");
+      renderTabela(filtro.value);
+    }
+
+    function excluir(index) {
+      if (confirm("Deseja realmente excluir este usuário?")) {
+        usuarios.splice(index, 1);
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+        renderTabela(filtro.value);
+      }
+    }
+
+    filtro.addEventListener("input", () => renderTabela(filtro.value));
+    renderTabela();
+    
+    const btnSair = document.getElementById("btnSair");
+
+btnSair.addEventListener("click", function () {
+  localStorage.removeItem("usuarioLogado"); // remove o login
+  window.location.href = "index.html"; 
+});
+  </script>
 </body>
 </html>
