@@ -68,6 +68,9 @@
       <label>CPF:</label>
       <input type="text" id="cpf" required placeholder="000.000.000-00" />
 
+      <label>Data de Nascimento:</label>
+      <input type="date" id="dataNascimento" required />
+
       <label>Senha:</label>
       <input type="password" id="senha" required />
 
@@ -92,6 +95,7 @@
       const nome = document.getElementById("nome").value;
       const email = document.getElementById("email").value;
       const cpf = document.getElementById("cpf").value.trim();
+      const dataNascimento = document.getElementById("dataNascimento").value;
       const senha = document.getElementById("senha").value;
       const perfil = document.getElementById("perfil").value;
 
@@ -113,7 +117,7 @@
         return;
       }
 
-      const novoUsuario = { nome, email, cpf, senha, perfil };
+      const novoUsuario = { nome, email, cpf, dataNascimento, senha, perfil };
       usuarios.push(novoUsuario);
 
       localStorage.setItem("usuarios", JSON.stringify(usuarios));
