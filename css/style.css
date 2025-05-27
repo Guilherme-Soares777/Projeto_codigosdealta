@@ -78,3 +78,31 @@ body {
       white-space: nowrap;
     }
   }
+  .perfil-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.perfil-btn:hover {
+  background-color: #3367d6;
+}
+
+/* Responsivo para telas menores */
+@media (max-width: 768px) {
+  .perfil-btn {
+    top: 10px;
+    right: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
