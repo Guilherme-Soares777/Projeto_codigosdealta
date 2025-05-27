@@ -177,7 +177,7 @@
 
     const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 if (!usuarioLogado) {
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
     let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
     const tabela = document.getElementById("tabelaUsuarios");
