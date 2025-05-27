@@ -1,55 +1,66 @@
-document.getElementById("cadastroForm").addEventListener("submit", function (e) {
-  e.preventDefault();
+const form = document.getElementById("cadastroForm");
 
-  const nome = document.getElementById("nome").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const senha = document.getElementById("senha").value.trim();
-  const mensagem = document.getElementById("mensagemCadastro");
+if (form) {
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-  // Limpa mensagem anterior
-  mensagem.textContent = "";
-  mensagem.style.color = "red";
+    const nome = document.getElementById("nome").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value.trim();
+    const mensagem = document.getElementById("mensagemCadastro");
 
-  // Validação básica
-  if (!nome || !email || !senha) {
-    mensagem.textContent = "Preencha todos os campos.";
-    return;
-  }
+    if (!mensagem) {
+      console.warn("Elemento de mensagem não encontrado.");
+      return;
+    }
 
-  // Validação de e-mail
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    mensagem.textContent = "Digite um e-mail válido.";
-    return;
-  }
+    // Limpa mensagem anterior
+    mensagem.textContent = "";
+    mensagem.style.color = "red";
 
-  // Verifica se o email já existe
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-  const emailExiste = usuarios.some(u => u.email === email);
+    // Validação básica
+    if (!nome || !email || !senha) {
+      mensagem.textContent = "Preencha todos os campos.";
+      return;
+    }
 
-  if (emailExiste) {
-    mensagem.textContent = "E-mail já cadastrado.";
-    return;
-  }
+    // Validação de e-mail
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      mensagem.textContent = "Digite um e-mail válido.";
+      return;
+    }
 
-  // Cria novo usuário
-  const novoUsuario = {
-    nome,
-    email,
-    senha,
-    cpf: "",
-    nascimento: "",
-    dataRegistro: new Date().toISOString()
-  };
+    // Verifica se o email já existe
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const emailExiste = usuarios.some((u) => u.email === email);
 
-  // Salva no localStorage
-  usuarios.push(novoUsuario);
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    if (emailExiste) {
+      mensagem.textContent = "E-mail já cadastrado.";
+      return;
+    }
 
-  // Mensagem de sucesso
-  mensagem.style.color = "green";
-  mensagem.textContent = "Cadastro realizado com sucesso!";
+    // Cria novo usuário
+    const novoUsuario = {
+      nome,
+      email,
+      senha,
+      cpf: "",
+      nascimento: "",
+      dataRegistro: new Date().toISOString()
+    };
 
-  // Reseta o formulário
-  document.getElementById("cadastroForm").reset();
-});
+    // Salva no localStorage
+    usuarios.push(novoUsuario);
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+    // Mensagem de sucesso
+    mensagem.style.color = "green";
+    mensagem.textContent = "Cadastro realizado com sucesso!";
+
+    // Reseta o formulário
+    form.reset();
+  });
+} else {
+  console.error("Formulário de cadastro não encontrado.");
+}
