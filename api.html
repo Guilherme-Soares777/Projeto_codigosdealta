@@ -20,15 +20,18 @@
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    label, input, button {
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input, button {
       display: block;
       width: 100%;
       margin-bottom: 10px;
-    }
-    input, button {
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      font-size: 1rem;
     }
     button {
       background-color: #2d89e5;
@@ -46,9 +49,17 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       margin-bottom: 20px;
     }
+    #btnSair {
+      background-color: #e53935;
+      border: none;
+    }
+    #btnSair:hover {
+      background-color: #c62828;
+    }
   </style>
 </head>
 <body>
+<a href="perfil.html" class="perfil-btn">Perfil</a>
 
   <h2>🔍 Consulta de Endereço via CEP</h2>
   <form id="cepForm">
@@ -56,7 +67,7 @@
     <input type="text" id="cep" name="cep" placeholder="Ex: 01001-000" required />
     <button type="submit">Buscar CEP</button>
   </form>
-  <div class="resultado" id="resultadoCEP"></div>
+  <div class="resultado" id="resultadoCEP" aria-live="polite"></div>
 
   <h2>🌤️ Previsão do Tempo</h2>
   <form id="tempoForm">
@@ -64,7 +75,8 @@
     <input type="text" id="cidade" name="cidade" placeholder="Ex: São Paulo" required />
     <button type="submit">Ver Previsão</button>
   </form>
-  <div class="resultado" id="resultadoTempo"></div>
+  <div class="resultado" id="resultadoTempo" aria-live="polite"></div>
+
   <button id="btnSair">Sair</button>
 
   <script>
@@ -118,7 +130,7 @@
 
           const { latitude, longitude, name, country } = geoData.results[0];
 
-          // Passo 2: Buscar previsão do tempo com base nas coordenadas
+          // Passo 2: Buscar previsão do tempo
           fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`)
             .then(res => res.json())
             .then(weatherData => {
@@ -146,37 +158,34 @@
     function getWeatherDescription(code) {
       const descriptions = {
         0: "Céu limpo",
-        1: "Parcialmente nublado",
-        2: "Nublado",
+        1: "Principalmente limpo",
+        2: "Parcialmente nublado",
         3: "Encoberto",
         45: "Nevoeiro",
-        48: "Nevoeiro com gelo",
-        51: "Chuvisco fraco",
+        48: "Nevoeiro com formação de gelo",
+        51: "Chuvisco leve",
         53: "Chuvisco moderado",
-        55: "Chuvisco intenso",
-        61: "Chuva fraca",
+        55: "Chuvisco forte",
+        61: "Chuva leve",
         63: "Chuva moderada",
-        65: "Chuva intensa",
-        71: "Neve fraca",
+        65: "Chuva forte",
+        71: "Neve leve",
         73: "Neve moderada",
         75: "Neve forte",
         95: "Trovoadas",
-        96: "Trovoadas com granizo",
-        99: "Trovoadas fortes com granizo"
+        96: "Trovoadas com granizo leve",
+        99: "Trovoadas com granizo forte"
       };
-    }  
-  const btnSair = document.getElementById("btnSair");
+      return descriptions[code] || "Clima desconhecido";
+    }
 
-  btnSair.addEventListener("click", function () {
-    localStorage.removeItem("usuarioLogado"); // Remove o usuário logado
-    window.location.href = "index.html";
-  });
+    // Botão de sair
+    const btnSair = document.getElementById("btnSair");
 
-  const btnLogin = document.getElementById("btnLogin");
-
-  btnLogin.addEventListener("click", function () {
-    window.location.href = "index.html"; 
-  });
-</script>
+    btnSair.addEventListener("click", function () {
+      localStorage.removeItem("usuarioLogado");
+      window.location.href = "index.html";
+    });
+  </script>
 </body>
 </html>
