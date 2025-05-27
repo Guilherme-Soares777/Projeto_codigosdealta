@@ -30,7 +30,7 @@
       color: #2c3e50;
     }
 
-    input[type="password"] { /* Alterado para input[type="password"] */
+    input {
       width: 100%;
       padding: 12px;
       border-radius: 8px;
@@ -58,7 +58,6 @@
     .mensagem {
       margin-top: 15px;
       font-weight: bold;
-      color: #28a745;
     }
 
     .link-voltar {
@@ -77,6 +76,7 @@
   <div class="container">
     <h2>Modificar Senha</h2>
     <form id="formSenha">
+      <input type="email" id="email" placeholder="Seu e-mail" required />
       <input type="password" id="novaSenha" placeholder="Nova Senha" required />
       <input type="password" id="confirmarSenha" placeholder="Confirmar Nova Senha" required />
       <button type="submit">Salvar Nova Senha</button>
@@ -91,12 +91,10 @@
 
     formSenha.addEventListener("submit", function (e) {
       e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
       const novaSenha = document.getElementById("novaSenha").value;
       const confirmarSenha = document.getElementById("confirmarSenha").value;
-
-      // Obter o usuário logado (exemplo - em um cenário real, isso viria do seu backend)
-      // Para este exemplo, vamos simular um usuário logado com uma senha "123"
-      const usuarioLogado = { email: "teste@example.com", senha: "123" }; 
 
       if (novaSenha !== confirmarSenha) {
         mensagem.textContent = "A nova senha e a confirmação não coincidem.";
@@ -104,16 +102,27 @@
         return;
       }
 
-      // Em um cenário real, você enviaria a nova senha para o servidor para atualização
-      // Aqui, apenas simulamos o sucesso
-      usuarioLogado.senha = novaSenha; // Apenas para o exemplo, não persistiria
+      let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+      const usuarioIndex = usuarios.findIndex(usuario => usuario.email === email);
+
+      if (usuarioIndex === -1) {
+        mensagem.textContent = "Usuário com esse e-mail não foi encontrado.";
+        mensagem.style.color = "#dc3545";
+        return;
+      }
+
+      usuarios[usuarioIndex].senha = novaSenha;
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
       mensagem.textContent = "Senha modificada com sucesso!";
       mensagem.style.color = "#28a745";
+      formSenha.reset();
 
-      // Opcional: Redirecionar após a modificação bem-sucedida
+      // Redirecionar após 2 segundos (opcional)
       // setTimeout(() => {
-      //   window.location.href = "index.html"; 
-      // }, 2000
+      //   window.location.href = "index.html";
+      // }, 2000);
     });
   </script>
 </body>
